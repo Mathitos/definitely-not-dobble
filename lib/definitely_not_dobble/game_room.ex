@@ -39,16 +39,12 @@ defmodule DefinitelyNotDobble.GameRoom do
   end
 
   @impl true
-  def handle_call(%{:guess, name, image}, _from, list) do
-    with server <- Enum.find(list, &(&1.player == "server"),
-        true <- image in server.images do
-      {:reply,"found", list}
+  def handle_call({:guess, _name, image}, _from, list) do
+    with server <- Enum.find(list, &(&1.player == "server")),
+         true <- image in server.images do
+      {:reply, "found", list}
     else
-      {:reply, "wrong guess", list}
+      _ -> {:reply, "wrong guess", list}
     end
-
-
-
-
   end
 end
