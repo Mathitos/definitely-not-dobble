@@ -3,25 +3,14 @@ defmodule DefinitelyNotDobble.RoomCoordinator do
 
   ## Client API
 
-  @doc """
-  Starts the RoomCoordinator.
-  """
   def start_link(opts) do
     GenServer.start_link(__MODULE__, :ok, opts)
   end
 
-  @doc """
-  Looks up the room pid for `name` stored in `server`.
-
-  Returns `{:ok, pid}` if the room exists, `:error` otherwise.
-  """
   def lookup(server, name) do
     GenServer.call(server, {:lookup, name})
   end
 
-  @doc """
-  Ensures there is a room associated with the given `name` in `server`.
-  """
   def create(server, name) do
     GenServer.cast(server, {:create, name})
   end
@@ -43,7 +32,7 @@ defmodule DefinitelyNotDobble.RoomCoordinator do
     if Map.has_key?(names, name) do
       {:noreply, names}
     else
-      {:ok, room} = DefinitelyNotDobble.GameRoom.init([])
+      {:ok, room} = DefinitelyNotDobble.GameRoom.start_link([])
       {:noreply, Map.put(names, name, room)}
     end
   end

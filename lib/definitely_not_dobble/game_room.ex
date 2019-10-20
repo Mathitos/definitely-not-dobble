@@ -3,38 +3,25 @@ defmodule DefinitelyNotDobble.GameRoom do
 
   ## Client API
 
-  @doc """
-  Starts the GameRoom.
-  """
-  def start_link(name, opts) do
-    GenServer.start_link(__MODULE__, name, opts)
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts)
   end
 
-  @doc """
-  Looks up the room pid for `name` stored in `server`.
-
-  Returns `{:ok, pid}` if the room exists, `:error` otherwise.
-  """
-  def lookup(server, name) do
-    GenServer.call(server, {:lookup, name})
+  def guess(room, name, image) do
+    GenServer.call(room, {:guess, name, image})
   end
 
-  @doc """
-  Ensures there is a room associated with the given `name` in `server`.
-  """
-  def create(server, name) do
-    GenServer.cast(server, {:create, name})
+  def get_cards(room) do
+    GenServer.call(room, {:get_cards})
   end
 
   # Callbacks
 
   @impl true
-  def init(name) do
+  def init(_) do
     {:ok,
      [
-       %{player: name, images: [1, 2, 3], cooldown: false},
-       %{player: "server", images: [1, 4, 5]},
-       cooldown: false
+       %{player: "server", images: [1, 4, 5], cooldown: false}
      ]}
   end
 
@@ -46,5 +33,16 @@ defmodule DefinitelyNotDobble.GameRoom do
     else
       _ -> {:reply, "wrong guess", list}
     end
+  end
+
+  @impl true
+  def handle_call({:join, name}, _from, list) do
+    new_list = [list | %{player: name, images: [1, 2, 3], cooldown: false}]
+    {:reply, new_list, new_list}
+  end
+
+  @impl true
+  def handle_call({:get_cards}, _from, list) do
+    {:reply, list, list}
   end
 end

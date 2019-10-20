@@ -11,9 +11,10 @@ defmodule DefinitelyNotDobble.Application do
       # Start the Ecto repository
       DefinitelyNotDobble.Repo,
       # Start the endpoint when the application starts
-      DefinitelyNotDobbleWeb.Endpoint
+      DefinitelyNotDobbleWeb.Endpoint,
       # Starts a worker by calling: DefinitelyNotDobble.Worker.start_link(arg)
       # {DefinitelyNotDobble.Worker, arg},
+      DefinitelyNotDobble.RoomSupervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
