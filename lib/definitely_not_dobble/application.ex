@@ -8,8 +8,6 @@ defmodule DefinitelyNotDobble.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
-      # Start the Ecto repository
-      DefinitelyNotDobble.Repo,
       # Start the endpoint when the application starts
       DefinitelyNotDobbleWeb.Endpoint,
       # Starts a worker by calling: DefinitelyNotDobble.Worker.start_link(arg)

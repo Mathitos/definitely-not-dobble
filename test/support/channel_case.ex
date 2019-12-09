@@ -25,12 +25,7 @@ defmodule DefinitelyNotDobbleWeb.ChannelCase do
     end
   end
 
-  setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DefinitelyNotDobble.Repo)
-
-    unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(DefinitelyNotDobble.Repo, {:shared, self()})
-    end
+  setup _tags do
 
     :ok
   end

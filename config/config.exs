@@ -7,9 +7,6 @@
 # General application configuration
 use Mix.Config
 
-config :definitely_not_dobble,
-  ecto_repos: [DefinitelyNotDobble.Repo]
-
 # Configures the endpoint
 config :definitely_not_dobble, DefinitelyNotDobbleWeb.Endpoint,
   url: [host: "localhost"],
