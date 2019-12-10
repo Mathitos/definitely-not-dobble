@@ -5,7 +5,8 @@ import Chat from '../components/Chat'
 const HomePage: React.FC<RouteComponentProps> = ({ location: { search } }) => {
   const params = new URLSearchParams(search)
   const name = params.get('name')
-  return <Chat name={name} chatRoom="chat" />
+  const room = params.get('room')
+  return <Chat name={name} chatRoom={room} />
 }
 
 export default HomePage
