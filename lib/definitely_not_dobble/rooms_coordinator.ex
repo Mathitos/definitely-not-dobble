@@ -7,16 +7,20 @@ defmodule DefinitelyNotDobble.RoomCoordinator do
     GenServer.start_link(__MODULE__, :ok, opts)
   end
 
-  def lookup(server, name) do
-    GenServer.call(server, {:lookup, name})
+  def lookup(name) do
+    GenServer.call(:room_coordinator, {:lookup, name})
   end
 
-  def create(server, name) do
-    GenServer.cast(server, {:create, name})
+  def create(name) do
+    GenServer.cast(:room_coordinator, {:create, name})
+  end
+
+  def getsert(name) do
+    create(name)
+    lookup(name)
   end
 
   ## Defining GenServer Callbacks
-
   @impl true
   def init(:ok) do
     {:ok, %{}}
