@@ -52,6 +52,13 @@ const Chat: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom }) 
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
       />
+      <button
+        onClick={() => {
+          PhoenixSocket.send(channel, 'get_game_state', null).then(console.log)
+        }}
+      >
+        Check Status
+      </button>
     </div>
   )
 }
