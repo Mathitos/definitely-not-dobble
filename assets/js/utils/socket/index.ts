@@ -2,7 +2,7 @@ import { Socket } from 'phoenix'
 import { GameState } from '../../models/GameState'
 
 export type Channel = {
-  join: () => any
+  join: () => Push<'join'>
   on: <T extends keyof ReceivedMessage>(
     ReceivedMessage: T,
     callback: (payload: ReceivedMessage[T]) => void,
@@ -15,17 +15,20 @@ interface Push<T extends keyof ResponseMessage> {
   resend: (timeout: number) => void
   send: () => void
   receive: {
-    (status: 'ok', callback: (payload: ResponseMessage[T]) => void): void
-    (status: 'error', callback: (payload: unknown) => void): void
+    (status: 'ok', callback: (payload: ResponseMessage[T]) => void): Push<T>
+    (status: 'error', callback: (payload: unknown) => void): Push<T>
+    (status: 'timeout', callback: (payload: unknown) => void): Push<T>
   }
 }
 
 export type SendMessage = {
+  join: never
   message: { text: string }
   get_game_state: null
 }
 
 export type ResponseMessage = {
+  join: void
   message: void
   get_game_state: GameState
 }
@@ -40,7 +43,7 @@ socket.connect()
 const connectToChannel = (channelName: string, userName: string): Channel =>
   socket.channel(channelName, { name: userName })
 
-const join = (channel: Channel): void =>
+const join = (channel: Channel): void => {
   channel
     .join()
     .receive('ok', (resp) => {
@@ -50,6 +53,7 @@ const join = (channel: Channel): void =>
       console.log('Unable to join on channel', resp)
     })
     .receive('timeout', () => console.log('Networking issue. Still waiting...'))
+}
 
 const disconect = (channel: Channel): void => channel.disconnect()
 
@@ -66,9 +70,10 @@ const send = <T extends keyof SendMessage>(
 ): Promise<ResponseMessage[T]> =>
   new Promise(
     (resolve: (payload: ResponseMessage[T]) => void, reject: (payload: unknown) => void) => {
-      const push: Push<T> = channel.push(message, payload)
-      push.receive('ok', resolve)
-      push.receive('error', reject)
+      channel
+        .push(message, payload)
+        .receive('ok', resolve)
+        .receive('error', reject)
     },
   )
 
