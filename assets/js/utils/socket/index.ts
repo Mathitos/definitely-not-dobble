@@ -2,45 +2,54 @@ import { Socket } from 'phoenix'
 
 export type Channel = {
   join: () => any
-  on: <T extends keyof Message>(
-    message: T,
-    callback: (payload: Message[T]) => void,
+  on: <T extends keyof ReceivedMessage>(
+    ReceivedMessage: T,
+    callback: (payload: ReceivedMessage[T]) => void,
   ) => void
-  push: <T extends keyof Message>(message: T, payload: Message[T]) => void
+  push: <T extends keyof SendMessage>(message: T, payload: SendMessage[T]) => void
   disconnect: () => void
 }
 
-export type Message = {
-  message: { name: string; text: string }
+export type SendMessage = {
+  message: { text: string }
 }
 
-const socket = new Socket('/socket', { params: { userToken: '123' } })
+export type ReceivedMessage = {
+  message: { user_name: string; text: string }
+}
+
+const socket = new Socket('/socket', { params: { user_token: 'user_token_test' } })
 socket.connect()
 
-export const connectToChannel = (channelName: string): Channel =>
-  socket.channel(channelName, {})
+const connectToChannel = (channelName: string, userName: string): Channel =>
+  socket.channel(channelName, { name: userName })
 
-export const join = (channel: Channel): void =>
+const join = (channel: Channel): void =>
   channel
     .join()
-    .receive('ok', resp => {
+    .receive('ok', (resp) => {
       console.log('Joined successfully on channel', resp)
     })
-    .receive('error', resp => {
+    .receive('error', (resp) => {
       console.log('Unable to join on channel', resp)
     })
     .receive('timeout', () => console.log('Networking issue. Still waiting...'))
 
-export const disconect = (channel: Channel): void => channel.disconnect()
+const disconect = (channel: Channel): void => channel.disconnect()
 
-export const listenTo = <T extends keyof Message>(
+const listenTo = <T extends keyof ReceivedMessage>(
   channel: Channel,
   message: T,
-  callback: (payload: Message[T]) => void,
+  callback: (payload: ReceivedMessage[T]) => void,
 ) => channel.on(message, callback)
 
-export const send = <T extends keyof Message>(
-  channel: Channel,
-  message: T,
-  payload: Message[T],
-) => channel.push(message, payload)
+const send = <T extends keyof SendMessage>(channel: Channel, message: T, payload: SendMessage[T]) =>
+  channel.push(message, payload)
+
+export default {
+  connectToChannel,
+  disconect,
+  join,
+  listenTo,
+  send,
+}

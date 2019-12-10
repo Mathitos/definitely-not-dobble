@@ -1,44 +1,42 @@
 import React, { useEffect, useState, useRef } from 'react'
-import * as phoenixSocket from '../../utils/socket'
+import PhoenixSocket, { Channel, ReceivedMessage } from '../../utils/socket'
 import TimeHelper from '../../utils/datetime'
 
-type ChatMessage = {
+type ChatLine = ReceivedMessage['message'] & {
   time: string
-  name: string
-  text: string
 }
 
 const Chat: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom }) => {
-  const [channel, _] = useState<phoenixSocket.Channel>(
-    phoenixSocket.connectToChannel(`room:${chatRoom}`),
-  )
+  const [channel, _] = useState<Channel>(PhoenixSocket.connectToChannel(`room:${chatRoom}`, name))
 
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([])
+  const [chatHistory, setChatHistory] = useState<ChatLine[]>([])
   const chatHistoryRef = useRef(chatHistory)
 
   useEffect(() => {
     chatHistoryRef.current = chatHistory
   }, [chatHistory])
 
-  const updateChatHistory = (name: string, text: string): void => {
-    setChatHistory([...chatHistoryRef.current, { name, text, time: TimeHelper.getCurrentTime() }])
+  const updateChatHistory = (user_name: string, text: string): void => {
+    setChatHistory([
+      ...chatHistoryRef.current,
+      { user_name, text, time: TimeHelper.getCurrentTime() },
+    ])
   }
 
   useEffect(() => {
-    phoenixSocket.listenTo(channel, 'message', (payload) =>
-      updateChatHistory(payload.name, payload.text),
+    PhoenixSocket.listenTo(channel, 'message', (payload) =>
+      updateChatHistory(payload.user_name, payload.text),
     )
-    phoenixSocket.join(channel)
+    PhoenixSocket.join(channel)
     return () => {
-      phoenixSocket.disconect(channel)
+      PhoenixSocket.disconect(channel)
     }
   }, [])
 
   const [inputValue, setInputValue] = useState<string>('')
 
   const sendMessage = () => {
-    phoenixSocket.send(channel, 'message', {
-      name: name,
+    PhoenixSocket.send(channel, 'message', {
       text: inputValue,
     })
     setInputValue('')
@@ -58,8 +56,8 @@ const Chat: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom }) 
   )
 }
 
-const RenderChatMessage: React.FC<ChatMessage> = ({ name, text, time }) => (
-  <span>{`[${time}]: ${name}: ${text}`}</span>
+const RenderChatMessage: React.FC<ChatLine> = ({ user_name, text, time }) => (
+  <span>{`[${time}]: ${user_name}: ${text}`}</span>
 )
 
 export default Chat
