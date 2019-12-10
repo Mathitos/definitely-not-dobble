@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import PhoenixSocket, { Channel, ReceivedMessage } from '../../utils/socket'
 import TimeHelper from '../../utils/datetime'
+import { GameState } from '../../models/GameState'
 
 type ChatLine = ReceivedMessage['message'] & {
   time: string
@@ -8,6 +9,7 @@ type ChatLine = ReceivedMessage['message'] & {
 
 const Chat: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom }) => {
   const [channel, _] = useState<Channel>(PhoenixSocket.connectToChannel(`room:${chatRoom}`, name))
+  const [gameState, setGameState] = useState<GameState>([])
 
   const [chatHistory, setChatHistory] = useState<ChatLine[]>([])
   const chatHistoryRef = useRef(chatHistory)
@@ -23,11 +25,23 @@ const Chat: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom }) 
     ])
   }
 
+  const handleMessageReceived = ({ user_name, text }: ReceivedMessage['message']): void => {
+    updateChatHistory(user_name, text)
+  }
+
+  const handleGameStateUpdateReceived = ({
+    game_state,
+  }: ReceivedMessage['game_state_update']): void => {
+    console.log('update game state', game_state)
+    setGameState(gameState)
+  }
+
   useEffect(() => {
-    PhoenixSocket.listenTo(channel, 'message', (payload) =>
-      updateChatHistory(payload.user_name, payload.text),
-    )
+    PhoenixSocket.listenTo(channel, 'message', handleMessageReceived)
+    PhoenixSocket.listenTo(channel, 'game_state_update', handleGameStateUpdateReceived)
+
     PhoenixSocket.join(channel)
+
     return () => {
       PhoenixSocket.disconect(channel)
     }

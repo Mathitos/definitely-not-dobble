@@ -35,6 +35,7 @@ export type ResponseMessage = {
 
 export type ReceivedMessage = {
   message: { user_name: string; text: string }
+  game_state_update: { game_state: GameState }
 }
 
 const socket = new Socket('/socket', { params: { user_token: 'user_token_test' } })

@@ -17,7 +17,7 @@ defmodule DefinitelyNotDobbleWeb.RoomChannel do
 
   def handle_info(:after_join, socket) do
     game_state = GameRoom.get_cards(socket.assigns.room_pid)
-    broadcast(socket, "game_state", %{game_state: game_state})
+    broadcast(socket, "game_state_update", %{game_state: game_state})
     {:noreply, socket}
   end
 
