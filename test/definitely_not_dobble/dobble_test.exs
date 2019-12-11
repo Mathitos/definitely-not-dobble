@@ -19,16 +19,24 @@ defmodule DefinitelyNotDobble.DobbleTest do
   @user1_card [00, 09, 10, 11, 12, 13, 14, 15, 16]
   @user2_card [00, 01, 02, 03, 04, 05, 06, 07, 08]
 
-  @game_state_sample [
+  @game_state [
     %{user: @user2, card: @user2_card, cooldown: false},
     %{user: @user1, card: @user1_card, cooldown: false},
     %{user: @server_user, card: @server_card, cooldown: false}
   ]
 
   test "get_current_cards" do
-    current_cards = get_current_cards(@game_state_sample)
+    current_cards = get_current_cards(@game_state)
     assert @server_card in current_cards
     assert @user1_card in current_cards
     assert @user2_card in current_cards
+  end
+
+  test "generate_new_card" do
+    new_card = generate_new_card(@game_state)
+
+    assert @server_card != new_card
+    assert @user1_card != new_card
+    assert @user2_card != new_card
   end
 end
