@@ -19,10 +19,14 @@ defmodule DefinitelyNotDobble.DobbleTest do
   @user1_card [00, 09, 10, 11, 12, 13, 14, 15, 16]
   @user2_card [00, 01, 02, 03, 04, 05, 06, 07, 08]
 
+  @server_state %{user: @server_user, card: @server_card, cooldown: false}
+  @user1_state %{user: @user1, card: @user1_card, cooldown: false}
+  @user2_state %{user: @user2, card: @user2_card, cooldown: false}
+
   @game_state [
-    %{user: @user2, card: @user2_card, cooldown: false},
-    %{user: @user1, card: @user1_card, cooldown: false},
-    %{user: @server_user, card: @server_card, cooldown: false}
+    @server_state,
+    @user1_state,
+    @user2_state
   ]
 
   describe "get_current_cards/1" do
@@ -54,14 +58,28 @@ defmodule DefinitelyNotDobble.DobbleTest do
   end
 
   describe "guess/3" do
-    test "wrong guess" do
+    test "wrong guess should return :wrong" do
       {result, _} = guess(@user1, 17, @game_state)
       assert :wrong == result
     end
 
-    test "guessing a number server dont have" do
+    test "guessing a number server dont have should return :wrong" do
       {result, _} = guess(@user1, 9, @game_state)
       assert :wrong == result
+    end
+
+    test "guessing right should return :right" do
+      {result, _} = guess(@user1, 00, @game_state)
+      assert :right == result
+    end
+
+    test "guessing right should update game state" do
+      {_, new_game_state} = guess(@user1, 00, @game_state)
+      new_player_state = Enum.find(new_game_state, fn player -> player.user == @user1 end)
+      new_server_state = Enum.find(new_game_state, fn player -> player.user == @server_user end)
+      assert new_player_state != @user1_state
+      assert new_server_state != @server_state
+      assert @user2_state in new_game_state
     end
   end
 end
