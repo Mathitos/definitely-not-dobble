@@ -1,4 +1,5 @@
 defmodule DefinitelyNotDobble.GameRoom do
+  alias DefinitelyNotDobble.Dobble
   use GenServer
 
   ## Client API
@@ -15,38 +16,34 @@ defmodule DefinitelyNotDobble.GameRoom do
     GenServer.call(room, {:guess, name, image})
   end
 
-  def get_cards(room) do
-    GenServer.call(room, {:get_cards})
+  def get_room_state(room) do
+    GenServer.call(room, {:get_room_state})
   end
 
   # Callbacks
 
   @impl true
   def init(_) do
-    {:ok,
-     [
-       %{player: "server", images: [1, 4, 5], cooldown: false}
-     ]}
+    {:ok, Dobble.init_room()}
   end
 
   @impl true
-  def handle_call({:guess, _name, image}, _from, list) do
-    with server <- Enum.find(list, &(&1.player == "server")),
-         true <- image in server.images do
-      {:reply, "found", list}
+  def handle_call({:guess, user, image}, _from, room_state) do
+    with {:right, new_room_state} <- Dobble.guess(user, image, room_state) do
+      {:reply, {:right, new_room_state}, new_room_state}
     else
-      _ -> {:reply, "wrong guess", list}
+      _ -> {:reply, {:wrong, room_state}, room_state}
     end
   end
 
   @impl true
-  def handle_call({:join, name}, _from, list) do
-    new_list = [%{player: name, images: [1, 2, 3], cooldown: false} | list]
-    {:reply, new_list, new_list}
+  def handle_call({:join, user}, _from, game_state) do
+    new_game_state = Dobble.add_new_player(user, game_state)
+    {:reply, {:ok, new_game_state}, new_game_state}
   end
 
   @impl true
-  def handle_call({:get_cards}, _from, list) do
-    {:reply, list, list}
+  def handle_call({:get_room_state}, _from, game_state) do
+    {:reply, {:ok, game_state}, game_state}
   end
 end

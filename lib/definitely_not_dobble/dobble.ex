@@ -1,4 +1,9 @@
 defmodule DefinitelyNotDobble.Dobble do
+  @server_user %{
+    id: 0,
+    name: "server"
+  }
+
   @all_possible_cards [
     [00, 01, 02, 03, 04, 05, 06, 07, 08],
     [00, 09, 10, 11, 12, 13, 14, 15, 16],
@@ -7,6 +12,12 @@ defmodule DefinitelyNotDobble.Dobble do
     [00, 33, 34, 35, 36, 37, 38, 39, 40],
     [00, 41, 42, 43, 44, 45, 46, 47, 48]
   ]
+  def init_room() do
+    [
+      %{user: @server_user, card: generate_new_card(), cooldown: false}
+    ]
+  end
+
   def get_current_cards(game_state) do
     Enum.map(game_state, fn player -> player.card end)
   end
@@ -21,6 +32,11 @@ defmodule DefinitelyNotDobble.Dobble do
   def get_player_card(user, game_state) do
     player = Enum.find(game_state, fn player -> player.user == user end)
     player.card
+  end
+
+  def generate_new_card() do
+    list_of_candidates = Enum.shuffle(@all_possible_cards)
+    List.first(list_of_candidates)
   end
 
   def generate_new_card(game_state) do

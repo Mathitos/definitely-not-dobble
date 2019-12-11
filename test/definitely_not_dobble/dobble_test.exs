@@ -82,4 +82,13 @@ defmodule DefinitelyNotDobble.DobbleTest do
       assert @user2_state in new_game_state
     end
   end
+
+  describe "init_room/0" do
+    test "initial state has only the server player" do
+      new_game_state = init_room()
+
+      assert Enum.find(new_game_state, fn player -> player.user == @server_user end) != nil
+      assert length(new_game_state) == 1
+    end
+  end
 end
