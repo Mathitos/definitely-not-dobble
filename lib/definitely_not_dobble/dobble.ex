@@ -12,11 +12,15 @@ defmodule DefinitelyNotDobble.Dobble do
   end
 
   def get_server_card(game_state) do
-    Enum.find(game_state, fn player -> player.user.name == "server" && player.user.id == 0 end)
+    player =
+      Enum.find(game_state, fn player -> player.user.name == "server" && player.user.id == 0 end)
+
+    player.card
   end
 
   def get_player_card(user, game_state) do
-    Enum.find(game_state, fn player -> player.user == user end)
+    player = Enum.find(game_state, fn player -> player.user == user end)
+    player.card
   end
 
   def generate_new_card(game_state) do
@@ -35,15 +39,18 @@ defmodule DefinitelyNotDobble.Dobble do
          player_card <- get_player_card(user, game_state),
          true <- image in server_card,
          true <- image in player_card do
-      new_player_card = generate_new_card(game_state)
+      new_card = generate_new_card(game_state)
 
-      Enum.map(game_state, fn player ->
-        if player.user == user do
-          %{user: user, card: new_player_card, cooldown: false}
-        else
-          player
-        end
-      end)
+      new_game_state =
+        Enum.map(game_state, fn player ->
+          case player.user do
+            ^user -> %{user: user, card: server_card, cooldown: false}
+            %{name: "server", id: 0} -> %{user: player.user, card: new_card, cooldown: false}
+            _ -> player
+          end
+        end)
+
+      {:right, new_game_state}
     else
       _ -> {:wrong, game_state}
     end
