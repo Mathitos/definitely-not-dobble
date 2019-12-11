@@ -39,4 +39,11 @@ defmodule DefinitelyNotDobble.DobbleTest do
     assert @user1_card != new_card
     assert @user2_card != new_card
   end
+
+  test "add_new_player" do
+    game_state = [%{user: @server_user, card: @server_card, cooldown: false}]
+    new_game_state = add_new_player(@user1, game_state)
+
+    assert Enum.find(new_game_state, fn player -> player.user == @user1 end) != nil
+  end
 end

@@ -19,7 +19,7 @@ defmodule DefinitelyNotDobble.Dobble do
 
   def add_new_player(user, game_state) do
     user_card = generate_new_card(game_state)
-    [%{player: user, card: user_card, cooldown: false} | game_state]
+    [%{user: user, card: user_card, cooldown: false} | game_state]
   end
 
   def guess(_user, _image, game_state) do
