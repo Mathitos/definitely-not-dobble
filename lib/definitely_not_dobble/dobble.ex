@@ -8,7 +8,7 @@ defmodule DefinitelyNotDobble.Dobble do
     [00, 41, 42, 43, 44, 45, 46, 47, 48]
   ]
   def get_current_cards(game_state) do
-    Enum.map(game_state, fn player -> player.images end)
+    Enum.map(game_state, fn player -> player.card end)
   end
 
   def generate_new_card(game_state) do
@@ -19,7 +19,7 @@ defmodule DefinitelyNotDobble.Dobble do
 
   def add_new_player(user, game_state) do
     user_card = generate_new_card(game_state)
-    [%{player: user, images: user_card, cooldown: false} | game_state]
+    [%{player: user, card: user_card, cooldown: false} | game_state]
   end
 
   def guess(_user, _image, game_state) do
