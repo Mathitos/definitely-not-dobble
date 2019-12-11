@@ -46,4 +46,9 @@ defmodule DefinitelyNotDobble.DobbleTest do
 
     assert Enum.find(new_game_state, fn player -> player.user == @user1 end) != nil
   end
+
+  test "guess" do
+    {result, _} = guess(@user1, 9, @game_state)
+    assert :wrong == result
+  end
 end
