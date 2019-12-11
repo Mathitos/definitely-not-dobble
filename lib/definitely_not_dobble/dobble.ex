@@ -11,6 +11,14 @@ defmodule DefinitelyNotDobble.Dobble do
     Enum.map(game_state, fn player -> player.card end)
   end
 
+  def get_server_card(game_state) do
+    Enum.find(game_state, fn player -> player.user.name == "server" && player.user.id == 0 end)
+  end
+
+  def get_player_card(user, game_state) do
+    Enum.find(game_state, fn player -> player.user == user end)
+  end
+
   def generate_new_card(game_state) do
     list_of_candidates = Enum.shuffle(@all_possible_cards)
     current_cards = get_current_cards(game_state)
@@ -22,7 +30,22 @@ defmodule DefinitelyNotDobble.Dobble do
     [%{user: user, card: user_card, cooldown: false} | game_state]
   end
 
-  def guess(_user, _image, game_state) do
-    {:wrong, game_state}
+  def guess(user, image, game_state) do
+    with server_card <- get_server_card(game_state),
+         player_card <- get_player_card(user, game_state),
+         true <- image in server_card,
+         true <- image in player_card do
+      new_player_card = generate_new_card(game_state)
+
+      Enum.map(game_state, fn player ->
+        if player.user == user do
+          %{user: user, card: new_player_card, cooldown: false}
+        else
+          player
+        end
+      end)
+    else
+      _ -> {:wrong, game_state}
+    end
   end
 end
