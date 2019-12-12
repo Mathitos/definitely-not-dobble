@@ -1,0 +1,32 @@
+.chat {
+  &__container {
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    padding: 10px;
+    border: 1px solid black;
+  }
+
+  &__messages-container {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__input-area {
+    display: grid;
+    grid-template-columns: 5fr 1fr;
+    column-gap: 20px;
+    padding-top: 10px;
+    border-top: 1px solid black;
+  }
+
+  &__message {
+    font-size: 12px;
+  }
+
+  &__message-label {
+    font-weight: 600;
+  }
+}
