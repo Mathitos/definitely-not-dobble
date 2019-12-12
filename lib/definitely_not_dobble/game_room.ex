@@ -8,8 +8,8 @@ defmodule DefinitelyNotDobble.GameRoom do
     GenServer.start_link(__MODULE__, opts)
   end
 
-  def join(room, name) do
-    GenServer.call(room, {:join, name})
+  def join(room, user) do
+    GenServer.call(room, {:join, user})
   end
 
   def guess(room, name, image) do
