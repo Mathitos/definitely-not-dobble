@@ -7,7 +7,7 @@ type ChatLine = ReceivedMessage['message'] & {
   time: string
 }
 
-const Chat: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom }) => {
+const GameRoom: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom }) => {
   const [channel, _] = useState<Channel>(PhoenixSocket.connectToChannel(`room:${chatRoom}`, name))
   const [gameState, setGameState] = useState<GameState>([])
 
@@ -58,22 +58,40 @@ const Chat: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom }) 
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {chatHistory.map((message) => (
-        <RenderChatMessage {...message} />
-      ))}
-      <input
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-      />
-      <button
+      <Chat messages={chatHistory} onNewMessage={console.log} />
+
+      {/* <button
         onClick={() => {
           PhoenixSocket.send(channel, 'get_game_state', null).then(console.log)
         }}
       >
         Check Status
-      </button>
+      </button> */}
     </div>
+  )
+}
+
+const Chat: React.FC<{ messages: ChatLine[]; onNewMessage: (msg: string) => void }> = ({
+  messages,
+  onNewMessage,
+}) => {
+  const [inputValue, setInputValue] = useState<string>('')
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        setInputValue('')
+        onNewMessage(inputValue)
+      }}
+    >
+      <div>
+        {messages.map((msg) => (
+          <RenderChatMessage {...msg} />
+        ))}
+      </div>
+      <input value={inputValue} onChange={({ target: { value } }) => setInputValue(value)} />
+      <button type="submit">Send</button>
+    </form>
   )
 }
 
@@ -81,4 +99,4 @@ const RenderChatMessage: React.FC<ChatLine> = ({ user_name, text, time }) => (
   <span>{`[${time}]: ${user_name}: ${text}`}</span>
 )
 
-export default Chat
+export default GameRoom
