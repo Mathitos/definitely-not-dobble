@@ -13,7 +13,6 @@ const Chat: React.FC<{ messages: ChatLine[]; onNewMessage: (msg: string) => void
     document.getElementById('messages-container').scrollTop = document.getElementById(
       'messages-container',
     ).scrollHeight
-    console.log('scrolei')
   }, [messages])
 
   return (
