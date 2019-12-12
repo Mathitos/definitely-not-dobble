@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ChatLine } from '../../models/Chat'
 
 import './chat.scss'
@@ -8,6 +8,14 @@ const Chat: React.FC<{ messages: ChatLine[]; onNewMessage: (msg: string) => void
   onNewMessage,
 }) => {
   const [inputValue, setInputValue] = useState<string>('')
+
+  useEffect(() => {
+    document.getElementById('messages-container').scrollTop = document.getElementById(
+      'messages-container',
+    ).scrollHeight
+    console.log('scrolei')
+  }, [messages])
+
   return (
     <form
       onSubmit={(e) => {
@@ -17,7 +25,7 @@ const Chat: React.FC<{ messages: ChatLine[]; onNewMessage: (msg: string) => void
       }}
       className="chat__container"
     >
-      <div className="chat__messages-container">
+      <div id="messages-container" className="chat__messages-container">
         {messages.map((msg) => (
           <RenderChatMessage {...msg} />
         ))}
