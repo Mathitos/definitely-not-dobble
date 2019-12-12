@@ -12,8 +12,8 @@ defmodule DefinitelyNotDobble.GameRoom do
     GenServer.call(room, {:join, user})
   end
 
-  def guess(room, name, image) do
-    GenServer.call(room, {:guess, name, image})
+  def guess(room, user, image) do
+    GenServer.call(room, {:guess, user, image})
   end
 
   def get_room_state(room) do

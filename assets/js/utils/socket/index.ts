@@ -25,12 +25,14 @@ export type SendMessage = {
   join: never
   message: { text: string }
   get_game_state: null
+  guess: { number: number }
 }
 
 export type ResponseMessage = {
-  join: void
+  join: { id: number }
   message: void
   get_game_state: GameState
+  guess: { response: 'right' | 'wrong' }
 }
 
 export type ReceivedMessage = {
@@ -44,17 +46,22 @@ socket.connect()
 const connectToChannel = (channelName: string, userName: string): Channel =>
   socket.channel(channelName, { name: userName })
 
-const join = (channel: Channel): void => {
-  channel
-    .join()
-    .receive('ok', (resp) => {
-      console.log('Joined successfully on channel', resp)
-    })
-    .receive('error', (resp) => {
-      console.log('Unable to join on channel', resp)
-    })
-    .receive('timeout', () => console.log('Networking issue. Still waiting...'))
-}
+const join = (channel: Channel): Promise<ResponseMessage['join']> =>
+  new Promise(
+    (resolve: (payload: ResponseMessage['join']) => void, reject?: (payload: unknown) => void) => {
+      channel
+        .join()
+        .receive('ok', (resp) => {
+          resolve(resp)
+        })
+        .receive('error', (resp) => {
+          reject ? reject(resp) : console.log('Unable to join on channel', resp)
+        })
+        .receive('timeout', (resp) =>
+          reject ? reject(resp) : console.log('Networking issue. Still waiting...'),
+        )
+    },
+  )
 
 const disconect = (channel: Channel): void => channel.disconnect()
 

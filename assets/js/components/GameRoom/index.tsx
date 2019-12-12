@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react'
 import PhoenixSocket, { Channel, ReceivedMessage } from '../../utils/socket'
 import TimeHelper from '../../utils/datetime'
-import { GameState } from '../../models/GameState'
+import GameStateHelper, { GameState } from '../../models/GameState'
 import { ChatLine } from '../../models/Chat'
 import Chat from '../Chat'
 
 const GameRoom: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom }) => {
   const [channel, _] = useState<Channel>(PhoenixSocket.connectToChannel(`room:${chatRoom}`, name))
+  const [userId, setUserId] = useState<number | null>(null)
   const [gameState, setGameState] = useState<GameState>([])
 
   const [chatHistory, setChatHistory] = useState<ChatLine[]>([])
@@ -28,42 +29,64 @@ const GameRoom: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom
   }
 
   const handleGameStateUpdateReceived = ({
-    game_state,
+    game_state: newGameState,
   }: ReceivedMessage['game_state_update']): void => {
-    console.log('update game state', game_state)
-    setGameState(gameState)
+    setGameState(newGameState)
   }
 
   useEffect(() => {
     PhoenixSocket.listenTo(channel, 'message', handleMessageReceived)
     PhoenixSocket.listenTo(channel, 'game_state_update', handleGameStateUpdateReceived)
 
-    PhoenixSocket.join(channel)
+    PhoenixSocket.join(channel).then(({ id }) => setUserId(id))
 
     return () => {
       PhoenixSocket.disconect(channel)
     }
   }, [])
 
-  const sendMessage = (newMsg: string) => {
+  const sendMessage = (newMsg: string): void => {
     PhoenixSocket.send(channel, 'message', {
       text: newMsg,
     })
   }
 
-  return (
-    <div style={{ height: '200px', width: '100%', padding: '20px' }}>
-      <Chat messages={chatHistory} onNewMessage={sendMessage} />
+  const handleGuess = (guess: number): void => {
+    PhoenixSocket.send(channel, 'guess', { number: guess }).then(({ response }) => {
+      if (response === 'right') {
+        console.log('topêêê')
+      } else {
+        console.log('vc é meio burro né?')
+      }
+    })
+  }
 
-      {/* <button
-        onClick={() => {
-          PhoenixSocket.send(channel, 'get_game_state', null).then(console.log)
-        }}
-      >
-        Check Status
-      </button> */}
+  const userCard = GameStateHelper.getUserCard({ id: userId, name }, gameState)
+  const serverCard = GameStateHelper.getServerCard(gameState)
+  return (
+    <div>
+      {userCard && serverCard && (
+        <>
+          <GameCard card={serverCard} onGuess={handleGuess} />
+          <GameCard card={userCard} />
+        </>
+      )}
+      <div style={{ height: '200px', width: '100%', padding: '20px' }}>
+        <Chat messages={chatHistory} onNewMessage={sendMessage} />
+      </div>
     </div>
   )
 }
+
+const GameCard: React.FC<{ card: number[]; onGuess?: (guess: number) => void }> = ({
+  card,
+  onGuess,
+}) => (
+  <div>
+    {card.map((number) => (
+      <button onClick={() => onGuess && onGuess(number)}>{number}</button>
+    ))}
+  </div>
+)
 
 export default GameRoom
