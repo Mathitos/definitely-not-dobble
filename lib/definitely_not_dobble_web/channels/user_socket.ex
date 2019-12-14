@@ -16,6 +16,8 @@ defmodule DefinitelyNotDobbleWeb.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   def connect(_params, socket, _connect_info) do
+    new_id = System.unique_integer([:positive, :monotonic])
+    socket = assign(socket, :user_id, new_id)
     {:ok, socket}
   end
 
@@ -29,5 +31,6 @@ defmodule DefinitelyNotDobbleWeb.UserSocket do
   #     DefinitelyNotDobbleWeb.Endpoint.broadcast("user_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
-  def id(_socket), do: nil
+
+  def id(socket), do: "user_socket:#{socket.assigns.user_id}"
 end

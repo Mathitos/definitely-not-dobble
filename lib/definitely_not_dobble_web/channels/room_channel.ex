@@ -5,15 +5,25 @@ defmodule DefinitelyNotDobbleWeb.RoomChannel do
 
   def join("room:" <> room_id, payload, socket) do
     {:ok, room_pid} = RoomCoordinator.getsert(room_id)
-    new_id = System.unique_integer([:positive, :monotonic])
-    user = %{id: new_id, name: payload["name"]}
+    user_id = socket.assigns.user_id
+    current_datetime = DateTime.utc_now()
+    user = %{id: user_id, name: payload["name"], last_activity: current_datetime}
     socket = assign(socket, :room_pid, room_pid)
     socket = assign(socket, :user, user)
 
     GameRoom.join(room_pid, user)
     send(self(), :after_join)
+    Process.send_after(self(), :health_check, 10_000)
 
-    {:ok, %{id: new_id}, socket}
+    {:ok, %{id: user_id}, socket}
+  end
+
+  def leave(socket) do
+    DefinitelyNotDobbleWeb.Endpoint.broadcast(
+      "user_socket:#{socket.assigns.user.id}",
+      "disconnect",
+      %{}
+    )
   end
 
   def handle_info(:after_join, socket) do
@@ -22,8 +32,32 @@ defmodule DefinitelyNotDobbleWeb.RoomChannel do
     {:noreply, socket}
   end
 
+  def handle_info(:health_check, socket) do
+    {:ok, last_activity} = DateTime.from_naive(socket.assigns.user.last_activity, "Etc/UTC")
+
+    if(DateTime.diff(DateTime.utc_now(), last_activity) > 10) do
+      leave(socket)
+    else
+      Process.send_after(self(), :health_check, 10_000)
+    end
+
+    {:noreply, socket}
+  end
+
   def handle_in("message", payload, socket) do
     broadcast(socket, "message", %{text: payload["text"], user_name: socket.assigns.user.name})
+
+    {:noreply, socket}
+  end
+
+  def handle_in("life_signal", _payload, socket) do
+    user_updated = %{
+      id: socket.assigns.user.id,
+      name: socket.assigns.user.name,
+      last_activity: DateTime.utc_now()
+    }
+
+    socket = assign(socket, :user, user_updated)
 
     {:noreply, socket}
   end

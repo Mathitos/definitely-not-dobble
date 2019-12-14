@@ -9,6 +9,8 @@ export type Channel = {
   ) => void
   push: <T extends keyof SendMessage>(message: T, payload: SendMessage[T]) => Push<T>
   disconnect: () => void
+  onError: (cb: () => void) => void
+  leave: () => void
 }
 
 interface Push<T extends keyof ResponseMessage> {
@@ -26,6 +28,7 @@ export type SendMessage = {
   message: { text: string }
   get_game_state: null
   guess: { number: number }
+  life_signal: null
 }
 
 export type ResponseMessage = {
@@ -33,6 +36,7 @@ export type ResponseMessage = {
   message: void
   get_game_state: GameState
   guess: { response: 'right' | 'wrong' }
+  life_signal: never
 }
 
 export type ReceivedMessage = {
