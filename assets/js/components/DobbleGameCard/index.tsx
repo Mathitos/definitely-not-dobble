@@ -12,6 +12,8 @@ const DobbleGameCard: React.FC<{ card: number[]; onGuess?: (guess: number) => vo
         className="dobble-game-card__button"
         style={getNumberStyle(number)}
         onClick={() => onGuess && onGuess(number)}
+        tabIndex={onGuess ? 0 : -1}
+        disabled={!onGuess}
       >
         {number}
       </button>

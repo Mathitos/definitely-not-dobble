@@ -72,7 +72,7 @@ const GameRoom: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom
   const serverCard = GameStateHelper.getServerCard(gameState)
   return (
     <div className="game-room">
-      <div className="game-room__other-players-info">other players info</div>
+      <OtherPlayersInfo />
       {userCard && serverCard && (
         <>
           <DobbleGameCard card={serverCard} onGuess={handleGuess} />
@@ -85,5 +85,11 @@ const GameRoom: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom
     </div>
   )
 }
+
+const OtherPlayersInfo: React.FC = () => (
+  <div className="game-room__other-players-info">
+    <DobbleGameCard card={[1, 2, 3, 4, 5, 6, 7, 8]} />
+  </div>
+)
 
 export default GameRoom
