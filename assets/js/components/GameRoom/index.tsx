@@ -4,6 +4,9 @@ import TimeHelper from '../../utils/datetime'
 import GameStateHelper, { GameState } from '../../models/GameState'
 import { ChatLine } from '../../models/Chat'
 import Chat from '../Chat'
+import DobbleGameCard from '../DobbleGameCard'
+
+import './game-room.scss'
 
 const GameRoom: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom }) => {
   const [channel, _] = useState<Channel>(PhoenixSocket.connectToChannel(`room:${chatRoom}`, name))
@@ -68,29 +71,19 @@ const GameRoom: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom
   const userCard = GameStateHelper.getUserCard({ id: userId, name }, gameState)
   const serverCard = GameStateHelper.getServerCard(gameState)
   return (
-    <div>
+    <div className="game-room">
+      <div className="game-room__other-players-info">other players info</div>
       {userCard && serverCard && (
         <>
-          <GameCard card={serverCard} onGuess={handleGuess} />
-          <GameCard card={userCard} />
+          <DobbleGameCard card={serverCard} onGuess={handleGuess} />
+          <DobbleGameCard card={userCard} />
         </>
       )}
-      <div style={{ height: '200px', width: '100%', padding: '20px' }}>
+      <div className="game-room__chat">
         <Chat messages={chatHistory} onNewMessage={sendMessage} />
       </div>
     </div>
   )
 }
-
-const GameCard: React.FC<{ card: number[]; onGuess?: (guess: number) => void }> = ({
-  card,
-  onGuess,
-}) => (
-  <div>
-    {card.map((number) => (
-      <button onClick={() => onGuess && onGuess(number)}>{number}</button>
-    ))}
-  </div>
-)
 
 export default GameRoom

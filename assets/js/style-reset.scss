@@ -8,3 +8,11 @@ button:focus {
 * {
   box-sizing: border-box;
 }
+
+html,
+body,
+#definitely-not-dobble-root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}

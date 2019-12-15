@@ -1,0 +1,21 @@
+.dobble-game-card {
+  &__container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    border: 1px solid black;
+    border-radius: 50%;
+    height: 25vh;
+    width: 25vh;
+    padding: 2vh;
+  }
+
+  &__button {
+    border-radius: 50%;
+    border: none;
+    background-color: transparent;
+    &:active {
+      background-color: rgba(0, 0, 0, 0.15);
+    }
+  }
+}
