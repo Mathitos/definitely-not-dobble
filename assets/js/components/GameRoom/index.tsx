@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import PhoenixSocket, { Channel, ReceivedMessage } from '../../utils/socket'
 import TimeHelper from '../../utils/datetime'
-import GameStateHelper, { GameState } from '../../models/GameState'
+import GameStateHelper, { GameState, Player } from '../../models/GameState'
 import { ChatLine } from '../../models/Chat'
 import Chat from '../Chat'
 import DobbleGameCard from '../DobbleGameCard'
@@ -70,9 +70,10 @@ const GameRoom: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom
 
   const userCard = GameStateHelper.getUserCard({ id: userId, name }, gameState)
   const serverCard = GameStateHelper.getServerCard(gameState)
+  const otherPlayers = GameStateHelper.getOtherPlayersCard({ id: userId, name }, gameState)
   return (
     <div className="game-room">
-      <OtherPlayersInfo />
+      <OtherPlayersInfo players={otherPlayers} />
       {userCard && serverCard && (
         <>
           <DobbleGameCard card={serverCard} onGuess={handleGuess} />
@@ -86,12 +87,14 @@ const GameRoom: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom
   )
 }
 
-const OtherPlayersInfo: React.FC = () => (
+const OtherPlayersInfo: React.FC<{ players: Player[] }> = ({ players }) => (
   <div className="game-room__other-players-info">
-    <div className="game-room__other-player">
-      <DobbleGameCard card={[1, 2, 3, 4, 5, 6, 7, 8]} small />
-      <span>User Name</span>
-    </div>
+    {players.map((player) => (
+      <div className="game-room__other-player">
+        <DobbleGameCard card={player.card} small />
+        <span>{player.user.name}</span>
+      </div>
+    ))}
   </div>
 )
 

@@ -25,7 +25,11 @@ const getUserCard = (user: User, state: GameState): number[] | null => {
   return player?.card
 }
 
+const getOtherPlayersCard = (user: User, state: GameState): Player[] | null =>
+  state.filter((player) => !isSameUser(player.user, user) && !isServer(player.user))
+
 export default {
+  getOtherPlayersCard,
   getServerCard,
   getUserCard,
 }

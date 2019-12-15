@@ -15,6 +15,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-around;
+    overflow-x: auto;
   }
   &__other-player {
     display: flex;
@@ -22,6 +23,8 @@
     align-items: center;
     justify-content: space-around;
     height: 100%;
+    margin: 0 10px;
+    align-items: center;
   }
 
   &__chat {
