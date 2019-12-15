@@ -31,14 +31,8 @@ const GameRoom: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom
   const handleGameStateUpdateReceived = ({
     game_state: newGameState,
   }: ReceivedMessage['game_state_update']): void => {
+    console.log(newGameState)
     setGameState(newGameState)
-  }
-
-  const keepTellingTheServerThatWeAreAlive = () => {
-    setInterval(() => {
-      PhoenixSocket.send(channel, 'life_signal', null)
-      keepTellingTheServerThatWeAreAlive()
-    }, 1000)
   }
 
   useEffect(() => {
@@ -46,12 +40,9 @@ const GameRoom: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom
     PhoenixSocket.listenTo(channel, 'game_state_update', handleGameStateUpdateReceived)
     channel.onError(() => {
       console.log('there was an error with the connection!')
-      channel.leave()
     })
 
     PhoenixSocket.join(channel).then(({ id }) => setUserId(id))
-
-    keepTellingTheServerThatWeAreAlive()
 
     return () => {
       PhoenixSocket.disconect(channel)

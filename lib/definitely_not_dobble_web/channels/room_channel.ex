@@ -6,41 +6,30 @@ defmodule DefinitelyNotDobbleWeb.RoomChannel do
   def join("room:" <> room_id, payload, socket) do
     {:ok, room_pid} = RoomCoordinator.getsert(room_id)
     user_id = socket.assigns.user_id
-    current_datetime = DateTime.utc_now()
-    user = %{id: user_id, name: payload["name"], last_activity: current_datetime}
+    user = %{id: user_id, name: payload["name"]}
     socket = assign(socket, :room_pid, room_pid)
     socket = assign(socket, :user, user)
+    socket = assign(socket, :room_id, room_id)
 
     GameRoom.join(room_pid, user)
     send(self(), :after_join)
-    Process.send_after(self(), :health_check, 10_000)
 
     {:ok, %{id: user_id}, socket}
   end
 
   def leave(socket) do
-    DefinitelyNotDobbleWeb.Endpoint.broadcast(
-      "user_socket:#{socket.assigns.user.id}",
-      "disconnect",
-      %{}
-    )
+    {:ok, game_room_state} = GameRoom.leave(socket.assigns.room_pid, socket.assigns.user)
+
+    if(length(game_room_state) == 1) do
+      RoomCoordinator.delete(socket.assigns.room_id)
+    else
+      broadcast(socket, "game_state_update", %{game_state: game_room_state})
+    end
   end
 
   def handle_info(:after_join, socket) do
     {:ok, game_state} = GameRoom.get_room_state(socket.assigns.room_pid)
     broadcast(socket, "game_state_update", %{game_state: game_state})
-    {:noreply, socket}
-  end
-
-  def handle_info(:health_check, socket) do
-    {:ok, last_activity} = DateTime.from_naive(socket.assigns.user.last_activity, "Etc/UTC")
-
-    if(DateTime.diff(DateTime.utc_now(), last_activity) > 10) do
-      leave(socket)
-    else
-      Process.send_after(self(), :health_check, 10_000)
-    end
-
     {:noreply, socket}
   end
 
@@ -79,5 +68,11 @@ defmodule DefinitelyNotDobbleWeb.RoomChannel do
     else
       _ -> {:reply, {:ok, %{response: "wrong"}}, socket}
     end
+  end
+
+  def terminate(_reason, socket) do
+    leave(socket)
+
+    :ok
   end
 end

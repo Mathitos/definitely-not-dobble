@@ -20,6 +20,10 @@ defmodule DefinitelyNotDobble.RoomCoordinator do
     lookup(name)
   end
 
+  def delete(name) do
+    GenServer.cast(:room_coordinator, {:delete, name})
+  end
+
   ## Defining GenServer Callbacks
   @impl true
   def init(:ok) do
@@ -38,6 +42,16 @@ defmodule DefinitelyNotDobble.RoomCoordinator do
     else
       {:ok, room} = DefinitelyNotDobble.GameRoom.start_link([])
       {:noreply, Map.put(names, name, room)}
+    end
+  end
+
+  @impl true
+  def handle_cast({:delete, name}, names) do
+    if Map.has_key?(names, name) do
+      {:noreply, names}
+    else
+      {_pid, map} = Map.pop(names, name)
+      {:noreply, map}
     end
   end
 end

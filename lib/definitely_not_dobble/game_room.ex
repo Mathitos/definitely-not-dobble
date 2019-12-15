@@ -12,6 +12,10 @@ defmodule DefinitelyNotDobble.GameRoom do
     GenServer.call(room, {:join, user})
   end
 
+  def leave(room, user) do
+    GenServer.call(room, {:leave, user})
+  end
+
   def guess(room, user, image) do
     GenServer.call(room, {:guess, user, image})
   end
@@ -39,6 +43,12 @@ defmodule DefinitelyNotDobble.GameRoom do
   @impl true
   def handle_call({:join, user}, _from, game_state) do
     new_game_state = Dobble.add_new_player(user, game_state)
+    {:reply, {:ok, new_game_state}, new_game_state}
+  end
+
+  @impl true
+  def handle_call({:leave, user}, _from, game_state) do
+    new_game_state = Dobble.remove_player(user, game_state)
     {:reply, {:ok, new_game_state}, new_game_state}
   end
 

@@ -102,6 +102,12 @@ defmodule DefinitelyNotDobble.Dobble do
     [%{user: user, card: user_card, cooldown: false} | game_state]
   end
 
+  def remove_player(user, game_state) do
+    index = Enum.find_index(game_state, fn player -> player.user == user end)
+    {_player, new_game_state} = List.pop_at(game_state, index)
+    new_game_state
+  end
+
   def guess(user, image, game_state) do
     with server_card <- get_server_card(game_state),
          player_card <- get_player_card(user, game_state),
