@@ -88,7 +88,10 @@ const GameRoom: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom
 
 const OtherPlayersInfo: React.FC = () => (
   <div className="game-room__other-players-info">
-    <DobbleGameCard card={[1, 2, 3, 4, 5, 6, 7, 8]} />
+    <div className="game-room__other-player">
+      <DobbleGameCard card={[1, 2, 3, 4, 5, 6, 7, 8]} small />
+      <span>User Name</span>
+    </div>
   </div>
 )
 

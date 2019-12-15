@@ -8,6 +8,11 @@
     height: 25vh;
     width: 25vh;
     padding: 2vh;
+    &--small {
+      height: 12vh;
+      width: 12vh;
+      padding: 1vh;
+    }
   }
 
   &__button {
