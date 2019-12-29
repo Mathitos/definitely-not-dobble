@@ -1,14 +1,20 @@
 import React, { useEffect, useState, useRef } from 'react'
+import { RouteComponentProps } from 'react-router-dom'
+
 import PhoenixSocket, { Channel, ReceivedMessage } from '../../utils/socket'
 import TimeHelper from '../../utils/datetime'
 import GameStateHelper, { GameState, Player } from '../../models/GameState'
 import { ChatLine } from '../../models/Chat'
-import Chat from '../Chat'
-import DobbleGameCard from '../DobbleGameCard'
+import Chat from '../../components/Chat'
+import DobbleGameCard from '../../components/DobbleGameCard'
 
 import './game-room.scss'
 
-const GameRoom: React.FC<{ name: string; chatRoom: string }> = ({ name, chatRoom }) => {
+const GameRoom: React.FC<RouteComponentProps> = ({ location: { search } }) => {
+  const params = new URLSearchParams(search)
+  const name = params.get('name')
+  const chatRoom = params.get('room')
+
   const [channel, _] = useState<Channel>(PhoenixSocket.connectToChannel(`room:${chatRoom}`, name))
   const [userId, setUserId] = useState<number | null>(null)
   const [gameState, setGameState] = useState<GameState>([])
