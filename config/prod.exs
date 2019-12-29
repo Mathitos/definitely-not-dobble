@@ -13,6 +13,10 @@ use Mix.Config
 #   url: [host: "example.com", port: 80],
 #   cache_static_manifest: "priv/static/cache_manifest.json"
 
+config :definitely_not_dobble, DefinitelyNotDobbleWeb.Endpoint,
+  http: [port: 4000],
+  check_origin: false
+
 # Do not print debug messages in production
 config :logger, level: :info
 
