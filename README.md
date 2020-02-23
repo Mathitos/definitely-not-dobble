@@ -7,8 +7,5 @@ To start your Phoenix server:
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
-
 ### Useful links
-  * https://medium.com/@resir014/a-phoenix-react-initial-setup-that-actually-works-c943e48f1e9e
-  * https://repl.it/@Mathitos/New-Dobble-Data-set
+  * https://hexdocs.pm/phoenix/heroku.html

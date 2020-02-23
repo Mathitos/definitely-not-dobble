@@ -14,8 +14,9 @@ use Mix.Config
 #   cache_static_manifest: "priv/static/cache_manifest.json"
 
 config :definitely_not_dobble, DefinitelyNotDobbleWeb.Endpoint,
-  http: [port: 4000],
-  check_origin: false
+  http: [port: {:system, "PORT"}],
+  url: [scheme: "https", host: "definitely-not-dobble.herokuapp.com", port: 443],
+  force_ssl: [rewrite_on: [:x_forwarded_proto]]
 
 # Do not print debug messages in production
 config :logger, level: :info

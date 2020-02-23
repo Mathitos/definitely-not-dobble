@@ -12,7 +12,12 @@ use Mix.Config
 # For development, we disable any cache and enable
 # debugging and code reloading.
 config :definitely_not_dobble, DefinitelyNotDobbleWeb.Endpoint,
-  http: [port: 4000],
+  https: [
+    port: 4000,
+    cipher_suite: :strong,
+    keyfile: "priv/cert/selfsigned_key.pem",
+    certfile: "priv/cert/selfsigned.pem"
+  ],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
