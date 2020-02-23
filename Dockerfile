@@ -1,5 +1,4 @@
 ARG ALPINE_VERSION=3.9
-ARG APP_NAME=definitely_not_dobble
 
 FROM elixir:1.9.0-alpine as builder
 
@@ -22,10 +21,10 @@ RUN apk add --update bash openssl
 RUN mkdir /app
 WORKDIR /app
 
-COPY --from=builder /app/_build/prod/rel/${APP_NAME} ./
+COPY --from=builder /app/_build/prod/rel/definitely_not_dobble ./
 RUN chown -R nobody: /app
 USER nobody
 
 ENV HOME=/app
 
-CMD ./bin/${APP_NAME} start
+CMD ./bin/definitely_not_dobble start

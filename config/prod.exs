@@ -16,7 +16,11 @@ use Mix.Config
 config :definitely_not_dobble, DefinitelyNotDobbleWeb.Endpoint,
   http: [port: {:system, "PORT"}],
   url: [scheme: "https", host: "definitely-not-dobble.herokuapp.com", port: 443],
-  force_ssl: [rewrite_on: [:x_forwarded_proto]]
+  force_ssl: [rewrite_on: [:x_forwarded_proto]],
+  check_origin: false,
+  server: true,
+  root: ".",
+  version: Application.spec(:phoenix_distillery, :vsn)
 
 # Do not print debug messages in production
 config :logger, level: :info
